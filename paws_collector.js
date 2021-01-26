@@ -236,7 +236,7 @@ class PawsCollector extends AlAwsCollector {
                 return collector.pawsInitCollectionState(event, asyncCallback);
             },
             function(state, nextInvocationTimeout, asyncCallback) {
-                return collector._storeCollectionState({}, state, nextInvocationTimeout, asyncCallback);
+                return collector._storeCollectionStates({}, state, nextInvocationTimeout, asyncCallback);
             }
         ],
         callback);
@@ -340,16 +340,20 @@ class PawsCollector extends AlAwsCollector {
             AttributeUpdates: {
                 Updated: {
                     Action: 'PUT',
-                    Value:{N: moment().unix().toString()}
+                    Value: {N: moment().unix().toString()}
                 },
                 Cid: {
                     Action: 'PUT',
-                    Value:{S: collector.cid ? collector.cid : 'none'}
+                    Value: {S: collector.cid ? collector.cid : 'none'}
                 },
                 Status: {
                     Action: 'PUT',
                     Value: {S: Status}
                 },
+                Stream: {
+                    Action: 'PUT',
+                    Value: {S: }
+                }
             },
             TableName: this._pawsDdbTableName
         };
@@ -413,7 +417,7 @@ class PawsCollector extends AlAwsCollector {
                 }
             },
             function(privCollectorState, nextInvocationTimeout, asyncCallback) {
-                return collector._storeCollectionState(pawsState, privCollectorState, nextInvocationTimeout, asyncCallback);
+                return collector._storeCollectionStates(pawsState, privCollectorState, nextInvocationTimeout, asyncCallback);
             },
             function(_results, asyncCallback) {
                 return collector.updateStateDBEntry(stateSqsMsg, STATE_RECORD_COMPLETE, asyncCallback);
@@ -548,15 +552,7 @@ class PawsCollector extends AlAwsCollector {
         return cloudwatch.putMetricData(params, callback);
     };
 
-    _storeCollectionState(pawsState, privCollectorState, invocationTimeout, callback) {
-        if (Array.isArray(privCollectorState)) {
-            return this._storeCollectionStateArray(pawsState, privCollectorState, invocationTimeout, callback);
-        } else {
-            return this._storeCollectionStateSingle(pawsState, privCollectorState, invocationTimeout, callback);
-        }
-    }
-
-    _storeCollectionStateArray(pawsState, privCollectorStates, invocationTimeout, callback) {
+    _storeCollectionStates(pawsState, privCollectorStates, invocationTimeout, callback) {
         let collector = this;
         var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
         const nextInvocationTimeout = invocationTimeout ? invocationTimeout : collector.pollInterval;
@@ -594,21 +590,6 @@ class PawsCollector extends AlAwsCollector {
             return callback(error);
         });
     }
-
-    _storeCollectionStateSingle(pawsState, privCollectorState, invocationTimeout, callback) {
-        let collector = this;
-        var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
-        const nextInvocationTimeout = invocationTimeout ? invocationTimeout : collector.pollInterval;
-        pawsState.priv_collector_state = privCollectorState;
-
-        const params = {
-            MessageBody: JSON.stringify(pawsState),
-            QueueUrl: process.env.paws_state_queue_url,
-            DelaySeconds: nextInvocationTimeout
-        };
-        // Current state message will be removed by Lambda trigger upon successful completion
-        sqs.sendMessage(params, callback);
-    };
 
     /**
      * @function collector callback to initialize collection state

@@ -32,9 +32,14 @@ describe('Unit Tests', function () {
             let accumulator = [];
 
             utils.getAPILogs(auth0Client, state, accumulator, maxPagesPerInvocation).then(data => {
-                assert(accumulator.length == 5, "accumulator length is wrong");
-                getLogsStub.restore();
-                done();
+                try {
+                    console.log(`Acc = ${JSON.stringify(data)}`);
+                    assert.strictEqual(data.accumulator.length, 5, "accumulator length is wrong");
+                    getLogsStub.restore();
+                    done();
+                } catch(error) {
+                    done(error);
+                }
             });
         });
     });
@@ -55,9 +60,13 @@ describe('Unit Tests', function () {
             let accumulator = [];
 
             utils.getAPILogs(auth0Client, state, accumulator, maxPagesPerInvocation).then(data => {
-                assert(accumulator.length == 0, "accumulator length is wrong");
-                getLogsStub.restore();
-                done();
+                try {
+                    assert(accumulator.length == 0, "accumulator length is wrong");
+                    getLogsStub.restore();
+                    done();     
+                } catch (error) {
+                    done(error);
+                }
             });
         });
     });

@@ -112,14 +112,14 @@ class CiscoduoCollector extends PawsCollector {
 
     _getNextCollectionState(curState) {
 
-        if (curState.object === Authentication) {
+        if (curState.stream === Authentication || cusState.object === Authentication) {
 
             const untilMoment = moment(parseInt(curState.maxtime));
 
             const { nextUntilMoment, nextSinceMoment, nextPollInterval } = calcNextCollectionInterval('no-cap', untilMoment, this.pollInterval);
 
             return {
-                object: curState.object,
+                stream: curState.stream | curState.object,
                 mintime: nextSinceMoment.valueOf(),
                 maxtime: nextUntilMoment.valueOf(),
                 nextPage: null,
@@ -133,7 +133,7 @@ class CiscoduoCollector extends PawsCollector {
             const { nextUntilMoment, nextSinceMoment, nextPollInterval } = calcNextCollectionInterval('no-cap', untilMoment, this.pollInterval);
 
             return {
-                object: curState.object,
+                stream: curState.stream | curState.object,
                 mintime: nextSinceMoment.unix(),
                 poll_interval_sec: nextPollInterval
             };
@@ -143,9 +143,9 @@ class CiscoduoCollector extends PawsCollector {
 
     _getNextCollectionStateWithNextPage(curState, nextPage) {
 
-        if (curState.object === Authentication) {
+        if (curState.stream === Authentication || cusState.object === Authentication) {            
             return {
-                object: curState.object,
+                stream: curState.stream | curState.object,
                 mintime: curState.mintime,
                 maxtime: curState.maxtime,
                 nextPage: nextPage,
@@ -154,7 +154,7 @@ class CiscoduoCollector extends PawsCollector {
         } else {
             //There is no next page concept for this API, So Setting up the next state mintime using the last log (Unix timestamp + 1).
             return {
-                object: curState.object,
+                stream: curState.stream | curState.object,
                 mintime: nextPage,
                 poll_interval_sec: 1
             };

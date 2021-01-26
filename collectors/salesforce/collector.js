@@ -28,7 +28,7 @@ class SalesforceCollector extends PawsCollector {
         super(context, creds, packageJson.version);
     }
 
-    pawsInitCollectionState(event, callback) {
+    pawsInitCollectionState(_event, callback) {
 
         const startTs = process.env.paws_collection_start_ts ?
             process.env.paws_collection_start_ts :
@@ -50,7 +50,7 @@ class SalesforceCollector extends PawsCollector {
         return callback(null, initialStates, 1);
     }
 
-    pawsGetRegisterParameters(event, callback) {
+    pawsGetRegisterParameters(_event, callback) {
         const regValues = {
             salesforceUserID: process.env.paws_collector_param_string_1,
             salesforceObjectNames: process.env.paws_collector_param_string_2

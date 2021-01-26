@@ -125,14 +125,19 @@ describe('Unit Tests', function () {
                 collector.pollInterval = testPollInterval;
 
                 collector.pawsInitCollectionState({}, (err, initialState, nextPoll) => {
-                    assert.equal(initialState.since, startDate, "Dates are not equal");
-                    assert.equal(initialState.poll_interval_sec, 1);
-                    assert.equal(nextPoll, 1);
-                    done();
+                    try {
+                        assert.strictEqual(initialState.since, startDate, "Dates are not equal");
+                        assert.strictEqual(initialState.poll_interval_sec, 1);
+                        assert.strictEqual(nextPoll, 1);
+                        done();
+                    } catch (error) {
+                        done(error);
+                    }
                 });
             });
         });
     });
+
     describe('Format Tests', function () {
         it('log format success', function (done) {
             let ctx = {
@@ -147,11 +152,15 @@ describe('Unit Tests', function () {
             };
 
             Auth0Collector.load().then(function (creds) {
-                var collector = new Auth0Collector(ctx, creds);
-                let fmt = collector.pawsFormatLog(auth0Mock.AUTH0_LOG_EVENT);
-                assert.equal(fmt.progName, 'Auth0Collector');
-                assert.ok(fmt.messageTypeId);
-                done();
+                try {
+                    var collector = new Auth0Collector(ctx, creds);
+                    let fmt = collector.pawsFormatLog(auth0Mock.AUTH0_LOG_EVENT);
+                    assert.strictEqual(fmt.progName, 'Auth0Collector');
+                    assert.ok(fmt.messageTypeId);
+                    done();
+                } catch(error) {
+                    done(error);
+                }                
             });
         });
     });
@@ -180,12 +189,16 @@ describe('Unit Tests', function () {
                 };
 
                 collector.pawsGetLogs(curState, (err, logs, newState, newPollInterval) => {
-                    assert.equal(logs.length, 2);
-                    assert.equal(newState.poll_interval_sec, collector.pollInterval);
-                    assert.equal(newState.last_log_id, "nextLogId");
-                    assert.ok(logs[0].log_id);
-                    getAPILogs.restore();
-                    done();
+                    try {
+                        assert.strictEqual(logs.length, 2);
+                        assert.strictEqual(newState.poll_interval_sec, collector.pollInterval);
+                        assert.strictEqual(newState.last_log_id, "nextLogId");
+                        assert.ok(logs[0].log_id);
+                        getAPILogs.restore();
+                        done();
+                    } catch (error) {
+                        done(error);
+                    }
                 });
 
             });
@@ -202,35 +215,43 @@ describe('Unit Tests', function () {
         };
         it('log format success', function (done) {
             Auth0Collector.load().then(function (creds) {
-                var collector = new Auth0Collector(ctx, creds);
-                const startDate = moment();
-                const curState = {
-                    since: startDate.toISOString(),
-                    poll_interval_sec: 1
-                };
-                let nextLogId = "nextLogId";
-                let lastLogTs = startDate.toISOString();
-                let nextState = collector._getNextCollectionState(curState, nextLogId, lastLogTs);
-                assert.equal(nextState.last_log_id, 'nextLogId');
-                assert.equal(nextState.last_collected_ts, lastLogTs);
-                assert.equal(nextState.poll_interval_sec, collector.pollInterval);
-                done();
+                try {
+                    var collector = new Auth0Collector(ctx, creds);
+                    const startDate = moment();
+                    const curState = {
+                        since: startDate.toISOString(),
+                        poll_interval_sec: 1
+                    };
+                    let nextLogId = "nextLogId";
+                    let lastLogTs = startDate.toISOString();
+                    let nextState = collector._getNextCollectionState(curState, nextLogId, lastLogTs);
+                    assert.strictEqual(nextState.last_log_id, 'nextLogId');
+                    assert.strictEqual(nextState.last_collected_ts, lastLogTs);
+                    assert.strictEqual(nextState.poll_interval_sec, collector.pollInterval);
+                    done();    
+                } catch (error) {
+                    done(error);
+                }
             });
         });
         it('log format success with nextLogId null', function (done) {
             Auth0Collector.load().then(function (creds) {
-                var collector = new Auth0Collector(ctx, creds);
-                const startDate = moment();
-                const curState = {
-                    since: startDate.toISOString(),
-                    poll_interval_sec: 1
-                };
-                let nextLogId = null;
-                let lastLogTs = null;
-                let nextState = collector._getNextCollectionState(curState, nextLogId, lastLogTs);
-                assert.ok(nextState.since);
-                assert.equal(nextState.poll_interval_sec, 1);
-                done();
+                try {
+                    var collector = new Auth0Collector(ctx, creds);
+                    const startDate = moment();
+                    const curState = {
+                        since: startDate.toISOString(),
+                        poll_interval_sec: 1
+                    };
+                    let nextLogId = null;
+                    let lastLogTs = null;
+                    let nextState = collector._getNextCollectionState(curState, nextLogId, lastLogTs);
+                    assert.ok(nextState.since);
+                    assert.strictEqual(nextState.poll_interval_sec, 1);
+                    done();
+                } catch (error) {
+                    done(error);
+                }
             });
         });
     });

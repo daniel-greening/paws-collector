@@ -35,11 +35,11 @@ class Auth0Collector extends PawsCollector {
     }
     
     pawsInitCollectionState(event, callback) {
-        const initialState = {
+        const initialStates = [{
             since: process.env.paws_collection_start_ts ? process.env.paws_collection_start_ts : moment().subtract(5, 'minutes').toISOString(),
             poll_interval_sec: 1
-        };
-        return callback(null, initialState, 1);
+        }];
+        return callback(null, initialStates, 1);
     }
 
     pawsGetLogs(state, callback) {
